@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>我的工作台 - 个人成长追踪系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body class="light-theme">
+    <div class="app-container">
+        <!-- 侧边栏 - 仅桌面端显示 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">🎯</div>
+                    <div class="logo-text">
+                        <h1>工作台</h1>
+                        <p>个人成长追踪系统</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">概览</span>
+                    <a class="nav-item active" data-page="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">数据看板</span>
+                    </a>
+                    <a class="nav-item" data-page="today">
+                        <span class="nav-icon">☀️</span>
+                        <span class="nav-label">今日任务</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">板块</span>
+                    <a class="nav-item" data-page="speech">
+                        <span class="nav-icon">🎤</span>
+                        <span class="nav-label">口才训练</span>
+                        <span class="nav-badge" id="speechBadge">0</span>
+                    </a>
+                    <a class="nav-item" data-page="professional">
+                        <span class="nav-icon">📚</span>
+                        <span class="nav-label">专业沉淀</span>
+                        <span class="nav-badge" id="professionalBadge">0</span>
+                    </a>
+                    <a class="nav-item" data-page="fitness">
+                        <span class="nav-icon">💪</span>
+                        <span class="nav-label">运动健身</span>
+                        <span class="nav-badge" id="fitnessBadge">0</span>
+                    </a>
+                    <a class="nav-item" data-page="thinking">
+                        <span class="nav-icon">🧠</span>
+                        <span class="nav-label">思维训练</span>
+                        <span class="nav-badge" id="thinkingBadge">0</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">知识库</span>
+                    <a class="nav-item" data-page="library">
+                        <span class="nav-icon">📖</span>
+                        <span class="nav-label">文档库</span>
+                    </a>
+                    <a class="nav-item" data-page="ai-assist">
+                        <span class="nav-icon">✨</span>
+                        <span class="nav-label">AI助手</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">系统</span>
+                    <a class="nav-item" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-label">设置</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="streak-info">
+                    <span class="streak-icon">🔥</span>
+                    <span class="streak-text">连续 <strong id="sidebarStreak">0</strong> 天</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部栏 -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <div class="page-title-area">
+                        <h2 class="page-title" id="pageTitle">数据看板</h2>
+                        <span class="page-date" id="pageDate"></span>
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <div class="quick-stats">
+                        <div class="quick-stat">
+                            <span class="quick-stat-value" id="todayProgress">0%</span>
+                            <span class="quick-stat-label">今日进度</span>
+                        </div>
+                    </div>
+                    <div class="top-bar-actions">
+                        <button class="action-btn theme-toggle" id="themeToggle" title="切换主题">
+                            <span class="theme-icon">🌙</span>
+                        </button>
+                        <button class="action-btn sync-btn" id="syncBtn" title="同步到飞书">
+                            <span class="sync-icon">📤</span>
+                        </button>
+                        <button class="action-btn notification-btn" id="notificationBtn" title="通知设置">
+                            <span class="notification-icon">🔔</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 页面内容容器 -->
+            <div class="page-container" id="pageContainer">
+                <!-- 数据看板页面 -->
+                <div class="page dashboard-page active" id="page-dashboard">
+                    <div class="dashboard-header">
+                        <div class="greeting-card">
+                            <div class="greeting-content">
+                                <h3 class="greeting-text" id="greetingText">早上好！</h3>
+                                <p class="greeting-sub" id="greetingSub">新的一天，新的开始</p>
+                            </div>
+                            <div class="greeting-visual">
+                                <div class="progress-ring-container">
+                                    <div class="progress-ring" id="mainProgressRing">
+                                        <svg viewBox="0 0 120 120">
+                                            <circle class="progress-ring-bg" cx="60" cy="60" r="54"/>
+                                            <circle class="progress-ring-fill" cx="60" cy="60" r="54" id="progressRingCircle"/>
+                                        </svg>
+                                        <div class="progress-ring-text">
+                                            <span class="progress-value" id="ringProgressValue">0%</span>
+                                            <span class="progress-label">完成率</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-stats">
+                        <div class="stat-card streak-card">
+                            <div class="stat-card-icon">🔥</div>
+                            <div class="stat-card-content">
+                                <span class="stat-card-value" id="streakValue">0</span>
+                                <span class="stat-card-label">连续打卡</span>
+                            </div>
+                            <div class="stat-card-badge" id="streakBadge"></div>
+                        </div>
+
+                        <div class="stat-card week-card">
+                            <div class="stat-card-icon">📅</div>
+                            <div class="stat-card-content">
+                                <span class="stat-card-value" id="weekValue">0%</span>
+                                <span class="stat-card-label">本周完成</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card total-card">
+                            <div class="stat-card-icon">✅</div>
+                            <div class="stat-card-content">
+                                <span class="stat-card-value" id="totalTasks">0</span>
+                                <span class="stat-card-label">累计完成</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card achievement-card">
+                            <div class="stat-card-icon">🏆</div>
+                            <div class="stat-card-content">
+                                <span class="stat-card-value" id="achievementCount">0</span>
+                                <span class="stat-card-label">成就解锁</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h3 class="section-title">📊 近7天趋势</h3>
+                        </div>
+                        <div class="trend-chart" id="trendChart"></div>
+                    </div>
+
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h3 class="section-title">🎯 各板块进度</h3>
+                        </div>
+                        <div class="board-progress-grid" id="boardProgressGrid"></div>
+                    </div>
+
+                    <div class="dashboard-section achievements-section">
+                        <div class="section-header">
+                            <h3 class="section-title">🏅 成成就墙</h3>
+                        </div>
+                        <div class="achievements-grid" id="achievementsGrid"></div>
+                    </div>
+                </div>
+
+                <!-- 今日任务页面 -->
+                <div class="page today-page" id="page-today">
+                    <div class="today-header">
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="board">看板</button>
+                            <button class="view-btn" data-view="list">列表</button>
+                            <button class="view-btn" data-view="timeline">时间轴</button>
+                        </div>
+                        <div class="today-actions">
+                            <button class="primary-btn" id="quickAddTask">
+                                <span>+</span> 添加任务
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="today-board-view active" id="boardView">
+                        <div class="board-column speech-column" data-board="speech">
+                            <div class="column-header speech-header">
+                                <div class="column-title">
+                                    <span class="column-icon">🎤</span>
+                                    <h3>口才训练</h3>
+                                </div>
+                                <div class="column-stats">
+                                    <span class="column-progress" id="speechProgress">0/0</span>
+                                    <div class="column-progress-bar">
+                                        <div class="column-progress-fill" id="speechProgressFill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column-content" id="speechColumnContent"></div>
+                        </div>
+
+                        <div class="board-column professional-column" data-board="professional">
+                            <div class="column-header professional-header">
+                                <div class="column-title">
+                                    <span class="column-icon">📚</span>
+                                    <h3>专业沉淀</h3>
+                                </div>
+                                <div class="column-stats">
+                                    <span class="column-progress" id="professionalProgress">0/0</span>
+                                    <div class="column-progress-bar">
+                                        <div class="column-progress-fill" id="professionalProgressFill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column-content" id="professionalColumnContent"></div>
+                        </div>
+
+                        <div class="board-column fitness-column" data-board="fitness">
+                            <div class="column-header fitness-header">
+                                <div class="column-title">
+                                    <span class="column-icon">💪</span>
+                                    <h3>运动健身</h3>
+                                </div>
+                                <div class="column-stats">
+                                    <span class="column-progress" id="fitnessProgress">0/0</span>
+                                    <div class="column-progress-bar">
+                                        <div class="column-progress-fill" id="fitnessProgressFill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column-content" id="fitnessColumnContent"></div>
+                        </div>
+
+                        <div class="board-column thinking-column" data-board="thinking">
+                            <div class="column-header thinking-header">
+                                <div class="column-title">
+                                    <span class="column-icon">🧠</span>
+                                    <h3>思维训练</h3>
+                                </div>
+                                <div class="column-stats">
+                                    <span class="column-progress" id="thinkingProgress">0/0</span>
+                                    <div class="column-progress-bar">
+                                        <div class="column-progress-fill" id="thinkingProgressFill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column-content" id="thinkingColumnContent"></div>
+                        </div>
+                    </div>
+
+                    <div class="today-list-view" id="listView">
+                        <div class="task-list-container" id="taskListContainer"></div>
+                    </div>
+
+                    <div class="today-timeline-view" id="timelineView">
+                        <div class="timeline-container" id="timelineContainer"></div>
+                    </div>
+                </div>
+
+                <!-- 板块详情页面 -->
+                <div class="page board-detail-page" id="page-board-detail">
+                    <div class="board-detail-header">
+                        <button class="back-btn" id="boardBackBtn">← 返回</button>
+                        <div class="board-detail-title-area">
+                            <span class="board-detail-icon" id="boardDetailIcon">🎤</span>
+                            <h2 class="board-detail-title" id="boardDetailTitle">口才训练</h2>
+                        </div>
+                        <div class="board-detail-actions">
+                            <button class="action-btn" id="editBoardTasks">编辑任务</button>
+                        </div>
+                    </div>
+
+                    <div class="board-detail-stats">
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="boardTodayTasks">0</span>
+                            <span class="detail-stat-label">今日任务</span>
+                        </div>
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="boardTodayDone">0</span>
+                            <span class="detail-stat-label">已完成</span>
+                        </div>
+                        <div class="detail-stat">
+                            <span class="detail-stat-value" id="boardWeekRate">0%</span>
+                            <span class="detail-stat-label">本周完成率</span>
+                        </div>
+                    </div>
+
+                    <div class="board-detail-tasks" id="boardDetailTasks"></div>
+                </div>
+
+                <!-- 文档库页面 -->
+                <div class="page library-page" id="page-library">
+                    <div class="library-header">
+                        <div class="library-filters">
+                            <select class="filter-select" id="libraryCategoryFilter">
+                                <option value="all">全部板块</option>
+                                <option value="professional">专业沉淀</option>
+                                <option value="speech">口才训练</option>
+                                <option value="thinking">思维训练</option>
+                            </select>
+                            <select class="filter-select" id="libraryTypeFilter">
+                                <option value="all">全部类型</option>
+                                <option value="analysis">方案分析</option>
+                                <option value="case">案例分析</option>
+                                <option value="method">方法论沉淀</option>
+                                <option value="reading">阅读笔记</option>
+                            </select>
+                            <div class="search-box">
+                                <input type="text" id="librarySearch" placeholder="搜索文档...">
+                                <button class="search-btn">🔍</button>
+                            </div>
+                        </div>
+                        <button class="primary-btn" id="addDocBtn">
+                            <span>+</span> 新建文档
+                        </button>
+                    </div>
+
+                    <div class="library-stats">
+                        <div class="lib-stat">
+                            <span class="lib-stat-value" id="libTotalDocs">0</span>
+                            <span class="lib-stat-label">文档总数</span>
+                        </div>
+                        <div class="lib-stat">
+                            <span class="lib-stat-value" id="libThisWeek">0</span>
+                            <span class="lib-stat-label">本周新增</span>
+                        </div>
+                    </div>
+
+                    <div class="library-grid" id="libraryGrid"></div>
+                </div>
+
+                <!-- AI助手页面 -->
+                <div class="page ai-assist-page" id="page-ai-assist">
+                    <div class="ai-header">
+                        <h2>AI 智能助手</h2>
+                        <p>帮你搜集优质内容、提炼观点见解</p>
+                    </div>
+
+                    <div class="ai-tools">
+                        <div class="ai-tool-card">
+                            <div class="ai-tool-icon">🔍</div>
+                            <h3 class="ai-tool-title">内容搜索</h3>
+                            <p class="ai-tool-desc">输入关键词，AI帮你搜索相关优质文章</p>
+                            <div class="ai-tool-input">
+                                <input type="text" id="aiSearchKeyword" placeholder="如：品牌营销策略、演讲技巧...">
+                                <button class="primary-btn" id="aiSearchBtn">搜索</button>
+                            </div>
+                        </div>
+
+                        <div class="ai-tool-card">
+                            <div class="ai-tool-icon">✍️</div>
+                            <h3 class="ai-tool-title">观点提炼</h3>
+                            <p class="ai-tool-desc">粘贴文章内容，AI帮你提炼核心观点</p>
+                            <div class="ai-tool-input">
+                                <textarea id="aiExtractContent" placeholder="粘贴文章内容..." rows="3"></textarea>
+                                <button class="primary-btn" id="aiExtractBtn">提炼观点</button>
+                            </div>
+                        </div>
+
+                        <div class="ai-tool-card">
+                            <div class="ai-tool-icon">💡</div>
+                            <h3 class="ai-tool-title">见解生成</h3>
+                            <p class="ai-tool-desc">基于观点，生成个人见解和思考</p>
+                            <div class="ai-tool-input">
+                                <textarea id="aiInsightInput" placeholder="输入已提炼的观点..." rows="3"></textarea>
+                                <button class="primary-btn" id="aiInsightBtn">生成见解</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-result-area" id="aiResultArea">
+                        <div class="ai-result-header">
+                            <h3>生成结果</h3>
+                            <button class="secondary-btn" id="saveAiResult">保存到文档库</button>
+                        </div>
+                        <div class="ai-result-content" id="aiResultContent"></div>
+                    </div>
+                </div>
+
+                <!-- 设置页面 -->
+                <div class="page settings-page" id="page-settings">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎨 主题设置</h3>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">界面主题</span>
+                                    <span class="setting-desc">选择你喜欢的配色方案</span>
+                                </div>
+                                <div class="theme-options">
+                                    <button class="theme-option active" data-theme="light">浅色</button>
+                                    <button class="theme-option" data-theme="dark">深色</button>
+                                    <button class="theme-option" data-theme="auto">自动</button>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">配色方案</span>
+                                    <span class="setting-desc">选择板块的专属配色</span>
+                                </div>
+                                <div class="color-scheme-options">
+                                    <button class="color-scheme active" data-scheme="default">默认</button>
+                                    <button class="color-scheme" data-scheme="warm">暖色调</button>
+                                    <button class="color-scheme" data-scheme="cool">冷色调</button>
+                                    <button class="color-scheme" data-scheme="nature">自然风</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔔 提醒设置</h3>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">每日提醒时间</span>
+                                    <span class="setting-desc">设置任务提醒的时间点</span>
+                                </div>
+                                <input type="time" class="setting-input" id="reminderTime" value="09:00">
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">浏览器通知</span>
+                                    <span class="setting-desc">开启桌面弹窗提醒</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="enableBrowserNotify" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">飞书消息提醒</span>
+                                    <span class="setting-desc">推送每日任务到飞书群</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="enableFeishuNotify">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📤 飞书集成</h3>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">Webhook 地址</span>
+                                    <span class="setting-desc">填写飞书群机器人的Webhook URL</span>
+                                </div>
+                                <input type="text" class="setting-input full-width" id="feishuWebhook" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">文档同步</span>
+                                    <span class="setting-desc">新建文档自动同步到飞书</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="enableFeishuSync">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-actions">
+                                <button class="secondary-btn" id="testFeishuBtn">测试连接</button>
+                                <button class="primary-btn" id="saveFeishuBtn">保存配置</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">📝 任务管理</h3>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">自定义任务</span>
+                                    <span class="setting-desc">添加或修改各板块的任务内容</span>
+                                </div>
+                                <button class="secondary-btn" id="editTasksBtn">编辑任务</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">💾 数据管理</h3>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">数据备份</span>
+                                    <span class="setting-desc">导出所有数据到本地文件</span>
+                                </div>
+                                <button class="secondary-btn" id="exportDataBtn">导出数据</button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <span class="setting-label">数据导入</span>
+                                    <span class="setting-desc">从备份文件恢复数据</span>
+                                </div>
+                                <input type="file" id="importDataFile" accept=".json" style="display:none;">
+                                <button class="secondary-btn" id="importDataBtn">导入数据</button>
+                            </div>
+                            <div class="setting-item danger-item">
+                                <div class="setting-info">
+                                    <span class="setting-label danger">清空数据</span>
+                                    <span class="setting-desc danger">删除所有任务记录和文档（不可恢复）</span>
+                                </div>
+                                <button class="danger-btn" id="clearDataBtn">清空</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 移动端底部导航 -->
+        <nav class="mobile-nav" id="mobileNav">
+            <a class="mobile-nav-item active" data-page="dashboard">
+                <span class="mobile-nav-icon">📊</span>
+                <span class="mobile-nav-label">看板</span>
+            </a>
+            <a class="mobile-nav-item" data-page="today">
+                <span class="mobile-nav-icon">☀️</span>
+                <span class="mobile-nav-label">今日</span>
+            </a>
+            <a class="mobile-nav-item" data-page="library">
+                <span class="mobile-nav-icon">📖</span>
+                <span class="mobile-nav-label">文档</span>
+            </a>
+            <a class="mobile-nav-item" data-page="ai-assist">
+                <span class="mobile-nav-icon">✨</span>
+                <span class="mobile-nav-label">AI</span>
+            </a>
+            <a class="mobile-nav-item" data-page="settings">
+                <span class="mobile-nav-icon">⚙️</span>
+                <span class="mobile-nav-label">设置</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 任务详情弹窗 -->
+    <div class="modal task-modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="taskModalTitle">任务详情</h3>
+                <button class="modal-close" id="taskModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="task-detail-view" id="taskDetailView"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="taskModalEdit">编辑</button>
+                <button class="primary-btn" id="taskModalComplete">完成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文档编辑弹窗 -->
+    <div class="modal doc-modal" id="docModal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="docModalTitle">新建文档</h3>
+                <button class="modal-close" id="docModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="doc-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>板块分类</label>
+                            <select id="docCategory">
+                                <option value="professional">专业沉淀</option>
+                                <option value="speech">口才训练</option>
+                                <option value="thinking">思维训练</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>文档类型</label>
+                            <select id="docType">
+                                <option value="analysis">方案分析</option>
+                                <option value="case">案例分析</option>
+                                <option value="method">方法论沉淀</option>
+                                <option value="reading">阅读笔记</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>标题</label>
+                        <input type="text" id="docTitle" placeholder="输入文档标题...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>来源链接</label>
+                        <input type="url" id="docSource" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>观点提取</label>
+                        <textarea id="docContent" rows="8" placeholder="用①②③编号列出核心观点..."></textarea>
+                        <div class="form-tips">格式示例：① 核心观点一... ② 核心观点二...</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>个人见解</label>
+                        <textarea id="docInsight" rows="4" placeholder="总结你的思考与见解..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>标签</label>
+                        <input type="text" id="docTags" placeholder="营销, 品牌, 案例（用逗号分隔）">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="docAiAssist">✨ AI辅助</button>
+                <button class="secondary-btn" id="docModalCancel">取消</button>
+                <button class="primary-btn" id="docModalSave">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文档查看弹窗 -->
+    <div class="modal view-doc-modal" id="viewDocModal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="viewDocTitle">文档标题</h3>
+                <button class="modal-close" id="viewDocModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="doc-view" id="docViewContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="viewDocFeishu">📤 同步飞书</button>
+                <button class="secondary-btn" id="viewDocEdit">编辑</button>
+                <button class="danger-btn" id="viewDocDelete">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务编辑弹窗 -->
+    <div class="modal edit-tasks-modal" id="editTasksModal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑任务</h3>
+                <button class="modal-close" id="editTasksModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-tasks-tabs">
+                    <button class="edit-tab active" data-board="speech">口才训练</button>
+                    <button class="edit-tab" data-board="professional">专业沉淀</button>
+                    <button class="edit-tab" data-board="fitness">运动健身</button>
+                    <button class="edit-tab" data-board="thinking">思维训练</button>
+                </div>
+                <div class="edit-tasks-content" id="editTasksContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="addNewTaskBtn">+ 添加新任务</button>
+                <button class="primary-btn" id="saveTasksBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速添加任务弹窗 -->
+    <div class="modal quick-add-modal" id="quickAddModal">
+        <div class="modal-content small-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">快速添加任务</h3>
+                <button class="modal-close" id="quickAddModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="quick-add-form">
+                    <div class="form-group">
+                        <label>所属板块</label>
+                        <select id="quickAddBoard">
+                            <option value="speech">口才训练</option>
+                            <option value="professional">专业沉淀</option>
+                            <option value="fitness">运动健身</option>
+                            <option value="thinking">思维训练</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>任务内容</label>
+                        <input type="text" id="quickAddTitle" placeholder="输入任务内容...">
+                    </div>
+                    <div class="form-group">
+                        <label>时间段</label>
+                        <select id="quickAddTime">
+                            <option value="早上">早上</option>
+                            <option value="上午">上午</option>
+                            <option value="下午">下午</option>
+                            <option value="晚上">晚上</option>
+                            <option value="睡前">睡前</option>
+                            <option value="灵活">灵活安排</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>频率</label>
+                        <select id="quickAddFrequency">
+                            <option value="daily">每日</option>
+                            <option value="weekly_1">每周1次</option>
+                            <option value="weekly_2">每周2次</option>
+                            <option value="weekly_3">每周3次</option>
+                            <option value="weekday">工作日</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" id="quickAddSubmit">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 完成动画 -->
+    <div class="completion-animation" id="completionAnimation">
+        <div class="confetti-container"></div>
+        <div class="completion-message">
+            <span class="completion-icon">🎉</span>
+            <span class="completion-text">任务完成！</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // 注册 Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => {
+                        console.log('✅ Service Worker 注册成功:', reg.scope);
+                    })
+                    .catch(err => {
+                        console.error('❌ Service Worker 注册失败:', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
